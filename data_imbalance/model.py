@@ -8,9 +8,9 @@ class CNN(nn.Module):
 
         # Convolutional Layers
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0)
-        self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0)
-        self.conv4 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0)
+        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
+        self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
+        self.conv4 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
 
         # Fully Connected Layers
         self.fc1 = nn.Linear(64 * 15 * 15, 1024)
@@ -33,7 +33,7 @@ class CNN(nn.Module):
         # Convolutional Layer Block 3
         x = self.pool(self.activation(self.conv3(x)))
         # Convolutional Layer Block 4
-        x = self.pool(self.activation(self.conv4(x)))
+        x = self.activation(self.conv4(x))
 
         # Flatten
         x = x.view(-1, 64 * 15 * 15)
