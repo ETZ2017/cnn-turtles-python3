@@ -11,15 +11,9 @@ from torch.utils.data.dataset import Dataset
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torchvision
 import torchvision.transforms as transforms
-from torchvision import datasets, transforms
-import matplotlib.pyplot as plt
+from torchvision import transforms
 import random
-import cv2
-import glob
-from PIL import Image
-import ntpath
 import os
 from tqdm import tqdm
 from tqdm import trange
@@ -40,7 +34,7 @@ epochs=params.epochs
 batch_size = params.batch_size
 label_smoothing = params.label_smoothing
 l2_lambda = params.l2_lambda
-path=params.output_folder + "_e" + str(params.epochs) + "_l" + str(params.lr) + "_b" + str(params.batch_size)  + "_l2" + str(params.l2_lambda) + "_s" + str(params.label_smoothing)  + "_t" + str(int(time.time())) 
+path=params.output_folder + "_e" + str(params.epochs) + "_l" + str(params.lr) + "_b" + str(params.batch_size)  + "_l2-" + str(params.l2_lambda) + "_s" + str(params.label_smoothing)  + "_t" + str(int(time.time())) 
 device = 'cuda'
 
 Path(path).mkdir(exist_ok=True)
@@ -128,7 +122,7 @@ def calculate_class_distribution(targets):
         class_counts[label] += 1
     return class_counts
 
-def train_epoch(model, train_dataloader, criterion, optimizer, l2_lambda = 0.01):
+def train_epoch(model, train_dataloader, criterion, optimizer):
     model.train()
     running_loss = 0.0
     correct_predictions = 0
@@ -142,14 +136,15 @@ def train_epoch(model, train_dataloader, criterion, optimizer, l2_lambda = 0.01)
 
                 outputs = model(inputs)
 
-                # Add L2 regularization to the loss function
-                regularization_loss = 0
+                # # Add L2 regularization to the loss function
+                # regularization_loss = 0
 
-                for param in model.parameters():
-                    regularization_loss += torch.norm(param, p=2)  # L2 norm
+                # for param in model.parameters():
+                #     regularization_loss += torch.norm(param, p=2)  # L2 norm
 
                 # Total loss with L2 regularization
-                loss = criterion(outputs, labels) + 0.5 * l2_lambda * regularization_loss
+                # loss = criterion(outputs, labels) + 0.5 * l2_lambda * regularization_loss
+                loss = criterion(outputs, labels)
 
                 loss.backward()
                 optimizer.step()
@@ -266,8 +261,8 @@ if __name__ == "__main__":
 
     model = CNN()
 
-    criterion = nn.CrossEntropyLoss(label_smoothing=0.2, weight=ins_class_weights)
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0, nesterov=True)
+    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights)
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True)
 
     pytorch_total_params = sum(p.numel() for p in  model.parameters())
     print('Number of parameters: {0}'.format(pytorch_total_params))

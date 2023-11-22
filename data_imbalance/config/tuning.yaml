@@ -1,13 +1,11 @@
 name: lr_tunning
 entity: evhenia-k-you
-program: main_wandb.py
+program: main.py
 method: bayes
 metric:
   goal: maximize
   name: eval/f1
 parameters:
-  model:
-    value: model
   epochs:
     values: [10, 20, 30]
   batch_size:
