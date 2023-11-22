@@ -1,5 +1,5 @@
 name: mini_tuning
-entity: evhenia-k-you
+entity: turtle_detection
 program: main.py
 method: bayes
 metric:

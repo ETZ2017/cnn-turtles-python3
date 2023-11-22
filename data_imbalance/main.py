@@ -18,7 +18,7 @@ import os
 from tqdm import tqdm
 from tqdm import trange
 
-from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score # Add metrics
 from dataset import TurtleDataset
 from model import CNN
 from parser import parse_arguments
@@ -34,6 +34,7 @@ epochs=params.epochs
 batch_size = params.batch_size
 label_smoothing = params.label_smoothing
 l2_lambda = params.l2_lambda
+enable_aug_rhf = params.enable_aug_rhf
 path=params.output_folder + "_e" + str(params.epochs) + "_l" + str(params.lr) + "_b" + str(params.batch_size)  + "_l2-" + str(params.l2_lambda) + "_s" + str(params.label_smoothing)  + "_t" + str(int(time.time())) 
 device = 'cuda'
 
@@ -57,14 +58,22 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-augmentation_transform = transforms.Compose([
-    # Add your desired data augmentation transformations here
-    transforms.RandomHorizontalFlip(0.5),
-    transforms.RandomVerticalFlip(0.5),
-    transforms.RandomRotation((5, 85)),
+# 1. Data augmentation
+
+transforms_list = [
     transforms.Resize((120, 120)),  # Adjust the size as needed
     transforms.ToTensor(),
-])
+]
+
+if enable_aug_rhf:
+
+    transforms_list.append(transforms.RandomHorizontalFlip(0.5))
+    
+    # transforms.RandomVerticalFlip(0.5),
+    # transforms.RandomRotation((5, 85)),
+
+augmentation_transform = transforms.Compose(transforms_list)
+
 
 multiple_transforms = [transform, augmentation_transform]
 
@@ -88,9 +97,9 @@ train_labels = train_dataset.get_labels_from_indices(train.indices)
 
 class_counts = Counter(train_labels)
 class_weights = [1.0 / class_counts[label] for label in train_labels]
-sample_weights = [class_weights[int(label)] for label in train_labels]
+sample_weights = [class_weights[int(label)] for label in train_labels] # More probability of sampling 1s
 
-def get_weights_inverse_num_of_samples (no_of_classes, samples_per_cls, power = 1):
+def get_weights_inverse_num_of_samples (no_of_classes, samples_per_cls, power = 1): # 2. Compute weights for the classes
 
     weights_for_samples = 1.0 / np.array(np.power(samples_per_cls, power))
     weights_for_samples = weights_for_samples / np.sum(weights_for_samples) * no_of_classes
@@ -249,7 +258,7 @@ if __name__ == "__main__":
     #train_loader, val_loader, test_loader = load_dataset()
 
     run = wandb.init(
-        entity="evhenia-k-you",
+        entity="turtle_detection",
         config={
             "epochs": params.epochs,
             "batch_size": params.batch_size,
@@ -261,8 +270,8 @@ if __name__ == "__main__":
 
     model = CNN()
 
-    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights)
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True)
+    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights) #Try other types of weighting
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True) # Weight decay works as L2 regularization
 
     pytorch_total_params = sum(p.numel() for p in  model.parameters())
     print('Number of parameters: {0}'.format(pytorch_total_params))
