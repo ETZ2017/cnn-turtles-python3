@@ -62,7 +62,6 @@ transform = transforms.Compose([
 
 transforms_list = [
     transforms.Resize((120, 120)),  # Adjust the size as needed
-    transforms.ToTensor(),
 ]
 
 if enable_aug_rhf:
@@ -75,6 +74,7 @@ if enable_aug_rhf:
 augmentation_transform = transforms.Compose(transforms_list)
 
 
+transforms_list.append(transforms.ToTensor())
 multiple_transforms = [transform, augmentation_transform]
 
 # Create a custom dataset for testing
