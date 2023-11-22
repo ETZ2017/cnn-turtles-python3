@@ -287,12 +287,12 @@ if __name__ == "__main__":
     model = CNN()
 
     if enable_ins_weights:
-        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights) #Try other types of weighting
+        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights) #Trying different types of weights
     elif enable_root_weights:
-        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=root_class_weights) #Try other types of weighting
+        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=root_class_weights) #Trying different types of weights
     else:
-        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing) #Default weights
-        
+        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing) #rying different types of weights. Default weights
+
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True) # Weight decay works as L2 regularization
 
     pytorch_total_params = sum(p.numel() for p in  model.parameters())
