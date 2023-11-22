@@ -35,6 +35,10 @@ batch_size = params.batch_size
 label_smoothing = params.label_smoothing
 l2_lambda = params.l2_lambda
 enable_aug_rhf = params.enable_aug_rhf
+enable_aug_rvf = params.enable_aug_rvf
+enable_aug_rr = params.enable_aug_rr
+enable_ins_weights = params.enable_ins_weights
+enable_root_weights = params.enable_root_weights
 path=params.output_folder + "_e" + str(params.epochs) + "_l" + str(params.lr) + "_b" + str(params.batch_size)  + "_l2-" + str(params.l2_lambda) + "_s" + str(params.label_smoothing)  + "_t" + str(int(time.time())) 
 device = 'cuda'
 
@@ -65,16 +69,20 @@ transforms_list = [
 ]
 
 if enable_aug_rhf:
-
     transforms_list.append(transforms.RandomHorizontalFlip(0.5))
     
-    # transforms.RandomVerticalFlip(0.5),
-    # transforms.RandomRotation((5, 85)),
+if enable_aug_rvf:
+    transforms_list.append(transforms.RandomVerticalFlip(0.5))
+
+if enable_aug_rr:
+    transforms_list.append(transforms.RandomRotation((5, 85)))
+
 
 augmentation_transform = transforms.Compose(transforms_list)
 
 
 transforms_list.append(transforms.ToTensor())
+
 multiple_transforms = [transform, augmentation_transform]
 
 # Create a custom dataset for testing
@@ -106,10 +114,18 @@ def get_weights_inverse_num_of_samples (no_of_classes, samples_per_cls, power = 
     
     return weights_for_samples
 
+def get_weights_square_root_inverse_num_of_samples (no_of_classes, samples_per_cls, power = 1/2): # Square inverse weights
+    weights_for_samples_root= 1.0 / np.array(np.power(samples_per_cls, power))
+    weights_for_samples_root = weights_for_samples_root / np.sum(weights_for_samples_root) * no_of_classes
+    
+    return weights_for_samples_root
+
 no_of_classes = 2
 samples_per_cls = [class_counts['0'] , class_counts['1']]
 
 ins_class_weights = torch.tensor(get_weights_inverse_num_of_samples(no_of_classes, samples_per_cls)).float().to(device)
+
+root_class_weights = torch.tensor(get_weights_square_root_inverse_num_of_samples(no_of_classes, samples_per_cls)).float().to(device)
 
 sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)
 
@@ -270,7 +286,13 @@ if __name__ == "__main__":
 
     model = CNN()
 
-    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights) #Try other types of weighting
+    if enable_ins_weights:
+        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights) #Try other types of weighting
+    elif enable_root_weights:
+        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=root_class_weights) #Try other types of weighting
+    else:
+        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing) #Default weights
+        
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True) # Weight decay works as L2 regularization
 
     pytorch_total_params = sum(p.numel() for p in  model.parameters())

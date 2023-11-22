@@ -47,11 +47,29 @@ def parse_arguments():
         type=float
     )
     parser.add_argument(
-        "-ea_rhf",
         "--enable_aug_rhf",
         default=False,
         action="store_true"
     )
-    
+    parser.add_argument(
+        "--enable_aug_rvf",
+        default=False,
+        action="store_true"
+    )
+    parser.add_argument(
+        "--enable_aug_rr",
+        default=False,
+        action="store_true"
+    )
+    parser.add_argument(
+        "--enable_ins_weights",
+        default=False,
+        action="store_true"
+    )
+    parser.add_argument(
+        "--enable_root_weights",
+        default=False,
+        action="store_true"
+    )
     args = parser.parse_args()
     return args
