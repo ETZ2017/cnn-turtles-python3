@@ -74,7 +74,7 @@ class DilatedCNNObjectDetection(nn.Module):
         cls_loss = F.cross_entropy(preds_cls, targets_cls)
 
         # Bounding box regression loss (Smooth L1 loss)
-        bbox_loss = F.smooth_l1_loss(preds_bbox, targets_bbox, reduction='sum')
+        bbox_loss = F.smooth_l1_loss(preds_bbox.reshape(targets_bbox.shape), targets_bbox, reduction='sum')
 
         # Total loss
         total_loss = cls_loss + lambda_coord * bbox_loss

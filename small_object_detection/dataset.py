@@ -27,8 +27,8 @@ class TurtleDataset(Dataset):
     # def __init__(self, csv_file='../data_imbalance/turtle_image_metadata_clean_s.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
     def __init__(self, csv_file='../data_imbalance/turtle_image_metadata_r1_partition.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
 
-        self.df = pd.read_csv(f"./data_imbalance/{csv_file}")
-        # self.df = pd.read_csv(f"./{csv_file}")
+        # self.df = pd.read_csv(f"./data_imbalance/{csv_file}")
+        self.df = pd.read_csv(f"./{csv_file}")
 
         self.is_train = train
 
@@ -65,8 +65,8 @@ class TurtleDataset(Dataset):
 
         img_folder = self.df.iloc[idx, 0]
         img_name = self.df.iloc[idx, 1]
-        # img_path = f"../{img_folder}/{img_name}"
-        img_path = f"{img_folder}/{img_name}"
+        img_path = f"../{img_folder}/{img_name}"
+        # img_path = f"{img_folder}/{img_name}"
 
         image = Image.open(img_path).convert("RGB")
  

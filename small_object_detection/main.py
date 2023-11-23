@@ -127,13 +127,15 @@ def calculate_iou(pred_boxes, top, left, size = 25):
     pred_x1, pred_y1 = pred_boxes.unbind(dim=2)
     target_x1, target_y1 = left, top
 
+    
+
     # Calculate intersection coordinates
     intersection_x1 = torch.maximum(pred_x1, target_x1)
     intersection_y1 = torch.maximum(pred_y1, target_y1)
     
     # Calculate intersection area
-    intersection_width = torch.maximum(0.0, torch.minimum(pred_x1 + size, target_x1 + size) - intersection_x1)
-    intersection_height = torch.maximum(0.0, torch.minimum(pred_y1 + size, target_y1 + size) - intersection_y1)
+    intersection_width = torch.maximum(torch.zeros_like(intersection_x1), torch.minimum(pred_x1 + size, target_x1 + size) - intersection_x1)
+    intersection_height = torch.maximum(torch.zeros_like(intersection_x1), torch.minimum(pred_y1 + size, target_y1 + size) - intersection_y1)
     intersection_area = intersection_width * intersection_height
 
     # Calculate union area
@@ -153,10 +155,10 @@ def train_epoch(model, train_dataloader, optimizer):
     total_iou = 0
     total_samples = 0
     with tqdm(train_dataloader, unit="batch") as tepoch:
-            for batch_idx, (inputs, targets_cls, box, target_box) in enumerate(tepoch):
+            for batch_idx, (inputs, targets_cls, top, left) in enumerate(tepoch):
                 # send to device
                 optimizer.zero_grad()
-                inputs, targets_cls, top, left = inputs.to(device), targets_cls.to(device), box.to(device), target_box.to(device)
+                inputs, targets_cls, top, left = inputs.to(device), targets_cls.to(device), top.to(device), left.to(device)
 
                 pred_class, pred_box = model(inputs)
 
@@ -169,8 +171,9 @@ def train_epoch(model, train_dataloader, optimizer):
                 iou = calculate_iou(pred_box, top, left)
                 total_iou += iou.sum().item()
 
+                real_box = torch.stack([top, left])
 
-                loss = model.calculate_loss(pred_class, targets_cls, pred_box, target_box)
+                loss = model.calculate_loss(pred_class, targets_cls, pred_box, real_box)
                 running_loss += loss.item()
 
                 loss.backward()
@@ -205,10 +208,10 @@ def evaluate(model, dataloader):
 
     with tqdm(dataloader, unit="batch") as tepoch:
         with torch.no_grad():
-            for batch_idx, (inputs, targets_cls, box, target_box) in enumerate(tepoch):
+            for batch_idx, (inputs, targets_cls, top, left) in enumerate(tepoch):
 
                 # send to device
-                inputs, targets_cls, box, target_box = inputs.to(device), targets_cls.to(device), box.to(device), target_box.to(device)
+                inputs, targets_cls, top, left = inputs.to(device), targets_cls.to(device), top.to(device), left.to(device)
 
                 pred_class, pred_box = model(inputs)
 
@@ -218,10 +221,12 @@ def evaluate(model, dataloader):
                 total_cls_correct += cls_correct.item()
 
                 # Calculate bounding box accuracy (considering top-left point)
-                iou = calculate_iou(pred_box, target_box)
+                iou = calculate_iou(pred_box, top, left)
                 total_iou += iou.sum().item()
 
-                loss = model.calculate_loss(pred_class, targets_cls, pred_box, target_box)
+                real_box = torch.stack([top, left])
+
+                loss = model.calculate_loss(pred_class, targets_cls, pred_box, real_box)
                 running_loss += loss.item()
 
                 total_samples += inputs.size(0)
@@ -260,10 +265,10 @@ def test(model, test_dataloader,  best_model_path):
 
     with tqdm(test_dataloader, unit="batch") as tepoch:
         with torch.no_grad():
-              for batch_idx, (inputs, targets_cls, box, target_box) in enumerate(tepoch):
+              for batch_idx, (inputs, targets_cls, top, left) in enumerate(tepoch):
 
                 # send to device
-                inputs, targets_cls, box, target_box = inputs.to(device), targets_cls.to(device), box.to(device), target_box.to(device)
+                inputs, targets_cls, top, left = inputs.to(device), targets_cls.to(device), top.to(device), left.to(device)
 
                 pred_class, pred_box = model(inputs)
 
@@ -273,16 +278,18 @@ def test(model, test_dataloader,  best_model_path):
                 total_cls_correct += cls_correct.item()
 
                 # Calculate bounding box accuracy (considering top-left point)
-                iou = calculate_iou(pred_box, target_box)
+                iou = calculate_iou(pred_box, top, left)
                 total_iou += iou.sum().item()
 
-                loss = model.calculate_loss(pred_class, targets_cls, pred_box, target_box)
-                test_loss += loss.item()
+                real_box = torch.stack([top, left])
+
+                test_loss = model.calculate_loss(pred_class, targets_cls, pred_box, real_box)
+                total_samples += inputs.size(0)
 
                 all_cls_predictions.extend(cls_preds.cpu().numpy())
                 all_cls_targets.extend(targets_cls.cpu().numpy())
 
-    average_loss = test_loss / len(test_loss)
+    average_loss = test_loss / len(test_dataloader)
     avg_cls_accuracy = total_cls_correct / total_samples
     avg_bbox_accuracy = total_iou / total_samples
    
@@ -291,7 +298,7 @@ def test(model, test_dataloader,  best_model_path):
     with open(path + "/log.txt", 'a') as file:
         file.write(log)  
 
-    return average_loss, avg_cls_accuracy, avg_bbox_accuracy, all_predictions, all_targets             
+    return average_loss, avg_cls_accuracy, avg_bbox_accuracy, all_cls_predictions, all_cls_targets             
 
 if __name__ == "__main__":
 
@@ -322,19 +329,18 @@ if __name__ == "__main__":
 
     for epoch in range(0, epochs):
 
-        train_loss, train_accuracy = train_epoch(model, train_loader, optimizer)
-        print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
+        train_loss, train_cls_accuracy, train_bbox_accuracy  = train_epoch(model, train_loader, optimizer)
+        print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f}, Train Cls Accuracy: {train_cls_accuracy:.4f}, Train Bbox Accuracy: {train_bbox_accuracy:.4f}")
 
-        val_loss, val_accuracy, all_predictions, all_targets  = evaluate(model, val_loader)
-
+        val_loss, val_cls_accuracy, val_bbox_accuracy, all_cls_predictions, all_cls_targets, total_iou  = evaluate(model, val_loader)
         # Calculate metrics using sklearn.metrics
 
-        precision = precision_score(all_targets, all_predictions)
-        recall = recall_score(all_targets, all_predictions)
-        f1 = f1_score(all_targets, all_predictions)
-        roc_auc = roc_auc_score(all_targets, all_predictions)
+        precision = precision_score(all_cls_targets, all_cls_predictions)
+        recall = recall_score(all_cls_targets, all_cls_predictions)
+        f1 = f1_score(all_cls_targets, all_cls_predictions)
+        roc_auc = roc_auc_score(all_cls_targets, all_cls_predictions)
 
-        print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+        print(f"Validation Loss: {val_loss:.4f}, Validation Classification Accuracy: {val_cls_accuracy:.4f}, Validation Bbox Accuracy: {val_bbox_accuracy:.4f}")
         print(f"Validation Precision: {precision:.4f}, Validation Recall: {recall:.4f}")
         print(f"Validation F1: {f1:.4f}, Validation ROC: {roc_auc:.4f}")
         
@@ -350,14 +356,14 @@ if __name__ == "__main__":
         # })
 
     best_model_path = path + '/best_model.pth' 
-    test_loss, test_accuracy, test_all_predictions, test_all_targets = test(model, test_loader, best_model_path)
+    test_loss, test_cls_accuracy, test_bbox_accuracy, test_cls_predictions, test_cls_targets = test(model, test_loader, best_model_path)
     
-    test_precision = precision_score(all_targets, all_predictions)
-    test_recall = recall_score(all_targets, all_predictions)
-    test_f1 = f1_score(all_targets, all_predictions)
-    test_roc_auc = roc_auc_score(all_targets, all_predictions)
+    test_precision = precision_score(test_cls_targets, test_cls_predictions)
+    test_recall = recall_score(test_cls_targets, test_cls_predictions)
+    test_f1 = f1_score(test_cls_targets, test_cls_predictions)
+    test_roc_auc = roc_auc_score(test_cls_targets, test_cls_predictions)
 
-    print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.4f}")
+    print(f"Test Loss: {test_loss:.4f}, Test Classification Accuracy: {test_cls_accuracy:.4f}, Test Bbox Accuracy: {test_bbox_accuracy:.4f}")
     print(f"Test Precision: {test_precision:.4f}, Test Recall: {test_recall:.4f}")
     print(f"Test F1: {test_f1:.4f}, Test ROC: {test_roc_auc:.4f}")
 
