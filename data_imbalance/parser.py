@@ -49,32 +49,32 @@ def parse_arguments():
     parser.add_argument(
         "--enable_aug_rhf",
         default=False,
-        action="store_true"
+        type=bool
     )
     parser.add_argument(
         "--enable_aug_rvf",
         default=False,
-        action="store_true"
+        type=bool
     )
     parser.add_argument(
         "--enable_aug_rr",
         default=False,
-        action="store_true"
+        type=bool
     )
     parser.add_argument(
         "--enable_ins_weights",
         default=False,
-        action="store_true"
+        type=bool
     )
     parser.add_argument(
         "--enable_root_weights",
         default=False,
-        action="store_true"
+        type=bool
     )
     parser.add_argument(
         "--enable_label_smoothing",
         default=False,
-        action="store_true"
+        type=bool
     )
     args = parser.parse_args()
     return args
