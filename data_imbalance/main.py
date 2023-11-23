@@ -39,7 +39,8 @@ enable_aug_rvf = params.enable_aug_rvf
 enable_aug_rr = params.enable_aug_rr
 enable_ins_weights = params.enable_ins_weights
 enable_root_weights = params.enable_root_weights
-path=params.output_folder + "_e" + str(params.epochs) + "_l" + str(params.lr) + "_b" + str(params.batch_size)  + "_l2-" + str(params.l2_lambda) + "_s" + str(params.label_smoothing)  + "_t" + str(int(time.time())) 
+enable_label_smoothing = params.enable_label_smoothing
+path=params.output_folder + "_e" + str(params.epochs) + "_l" + str(params.lr) + "_b" + str(params.batch_size)  + "_l2-" + str(params.l2_lambda) + "_s" + str(params.label_smoothing)  + "_t" + str(int(time.time())) + "_rhf" + str(params.enable_aug_rhf) + "_rvf" + str(params.enable_aug_rvf) + "_rr" + str(params.enable_aug_rr) + "_ins" + str(params.enable_ins_weights) + "_root" + str(params.enable_root_weights) + "_ls" + str(params.enable_label_smoothing)
 device = 'cuda'
 
 Path(path).mkdir(exist_ok=True)
@@ -286,11 +287,20 @@ if __name__ == "__main__":
     model = CNN()
 
     if enable_ins_weights:
-        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights) #Trying different types of weights
+        if enable_label_smoothing:
+            criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights) #Trying different types of weights and label smoothing
+        else: 
+            criterion = nn.CrossEntropyLoss(weight=ins_class_weights) #Trying different types of weights without label smoothing
     elif enable_root_weights:
-        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=root_class_weights) #Trying different types of weights
+        if enable_label_smoothing:
+            criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=root_class_weights) #Trying different types of weights and label smoothing
+        else: 
+            criterion = nn.CrossEntropyLoss(weight=root_class_weights) #Trying different types of weights without label smoothing
     else:
-        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing) #rying different types of weights. Default weights
+        if enable_label_smoothing:
+            criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing) #Trying different types of weights. Default weights and label smoothing
+        else: 
+            criterion = nn.CrossEntropyLoss() #Trying different types of weights. Default weights and no label smoothing
 
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True) # Weight decay works as L2 regularization
 
