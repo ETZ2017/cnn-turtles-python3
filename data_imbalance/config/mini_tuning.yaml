@@ -7,7 +7,7 @@ metric:
   name: eval/f1
 parameters:
   epochs:
-    value: 20
+    value: 15
   batch_size:
     values: [64, 128]  
   lr:

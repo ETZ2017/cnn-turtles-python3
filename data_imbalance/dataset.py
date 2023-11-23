@@ -24,7 +24,7 @@ else:
 
 class TurtleDataset(Dataset):
 
-    def __init__(self, csv_file='turtle_image_metadata_clean.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
+    def __init__(self, csv_file='turtle_image_metadata_r1_partition.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
     # def __init__(self, csv_file='turtle_image_metadata_clean_s.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
 
         # self.df = pd.read_csv(f"./data_imbalance/{csv_file}")
