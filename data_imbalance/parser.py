@@ -71,5 +71,10 @@ def parse_arguments():
         default=False,
         action="store_true"
     )
+    parser.add_argument(
+        "--enable_label_smoothing",
+        default=False,
+        action="store_true"
+    )
     args = parser.parse_args()
     return args
