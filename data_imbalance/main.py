@@ -165,8 +165,7 @@ def train_epoch(model, train_dataloader, criterion, optimizer):
                 # regularization_loss = 0
 
                 # for param in model.parameters():
-                #     regularization_loss += torch.norm(param, p=2)  # L2 norm
-
+                #     regularization_loss += torch.norm(pard
                 # Total loss with L2 regularization
                 # loss = criterion(outputs, labels) + 0.5 * l2_lambda * regularization_loss
                 loss = criterion(outputs, labels)
