@@ -46,12 +46,7 @@ device = 'cuda'
 Path(path).mkdir(exist_ok=True)
 
 with open(path + "/" + "meta.txt", "w+") as file:
-    file.write(str(params))
-
-def START_seed():
-    seed = 9
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
+    file.write(str(params))_ 
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
@@ -145,8 +140,7 @@ def calculate_class_distribution(targets):
     for label in targets:
         if label not in class_counts:
             class_counts[label] = 0
-        class_counts[label] += 1
-    return class_counts
+        class_counts[label] += 1_ 
 
 def train_epoch(model, train_dataloader, criterion, optimizer):
     model.train()
@@ -175,7 +169,7 @@ def train_epoch(model, train_dataloader, criterion, optimizer):
                 optimizer.step()
 
                 running_loss += loss.item()
-                _, predicted = torch.max(outputs, 1)
+                predicted, _ = torch.max(outputs, 1)
                 correct_predictions += (predicted == labels).sum().item()
                 total_samples += labels.size(0)
                 tepoch.set_postfix(loss=running_loss/(batch_idx+1), lr=optimizer.param_groups[0]['lr'])
@@ -280,6 +274,12 @@ if __name__ == "__main__":
             "batch_size": params.batch_size,
             "lr": params.lr,
             "opt": params.opt,
+            "enable_aug_rhf": params.enable_aug_rhf,
+            "enable_aug_rvf": params.enable_aug_rvf,
+            "enable_aug_rr": params.enable_aug_rr,
+            "enable_ins_weights": params.enable_ins_weights,
+            "enable_root_weights": params.enable_root_weights,
+            "enable_label_smoothing": params.enable_label_smoothing,
         },
         name="turtles"
     )
@@ -327,6 +327,8 @@ if __name__ == "__main__":
         print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
         print(f"Validation Precision: {precision:.4f}, Validation Recall: {recall:.4f}")
         print(f"Validation F1: {f1:.4f}, Validation ROC: {roc_auc:.4f}")
+        print(f"all_targets: {all_targets}")
+        print(f"all_predictions: {all_predictions}")
         
         wandb.log({
             'train/acccuracy': train_accuracy,

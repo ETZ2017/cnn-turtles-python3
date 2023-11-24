@@ -1,4 +1,4 @@
-name: mini_tuning
+name: tuning_bools
 entity: turtle_detection
 program: main.py
 command:
@@ -8,19 +8,18 @@ metric:
   name: eval/f1
 parameters:
   enable_aug_rhf:
-    value: True
+    values: [True, False]
   enable_aug_rvf:
-    value: True
+    values: [True, False]
   enable_aug_rr:
-    value: True
+    values: [True, False]
   enable_ins_weights:
-    value: True
+    values: [True, False]
   enable_label_smoothing:
-    value: True
+    values: [True, False]
   epochs:
-    values: [15, 20, 25]
+    value: 15
   batch_size:
-    values: [64, 128]  
+    value: 128  
   lr:
-    min: 0.008
-    max: 0.035
+    value: 0.0274
