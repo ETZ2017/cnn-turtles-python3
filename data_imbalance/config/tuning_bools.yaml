@@ -1,0 +1,25 @@
+name: tuning_bools
+entity: turtle_detection
+program: main.py
+command:
+method: bayes
+metric:
+  goal: maximize
+  name: eval/f1
+parameters:
+  enable_aug_rhf:
+    values: [True, False]
+  enable_aug_rvf:
+    values: [True, False]
+  enable_aug_rr:
+    values: [True, False]
+  enable_ins_weights:
+    values: [True, False]
+  enable_label_smoothing:
+    values: [True, False]
+  epochs:
+    value: 15
+  batch_size:
+    value: 128  
+  lr:
+    value: 0.0274
