@@ -12,7 +12,6 @@ class DilatedCNNObjectDetection(nn.Module):
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=2, dilation=2)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=2, dilation=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=2, dilation=2)
-        self.conv4 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=2, dilation=2)
 
         
         # Fully Connected Layers for Classification
@@ -21,7 +20,7 @@ class DilatedCNNObjectDetection(nn.Module):
         self.fc_cls3 = nn.Linear(1024, num_classes)
 
         # Fully Connected Layers for Bounding Box Regression
-        self.fc_bbox1 = nn.Linear(64* 64 * 15 * 15, 128)
+        self.fc_bbox1 = nn.Linear(64 * 64 * 15 * 15, 128)
         self.fc_bbox2 = nn.Linear(128, 64)
         self.fc_bbox3 = nn.Linear(64, 32)
         self.fc_bbox4 = nn.Linear(32, 2 * num_boxes)  # Assuming top-left corner of the box
@@ -39,12 +38,10 @@ class DilatedCNNObjectDetection(nn.Module):
         x2 = self.activation(self.conv2(x1))
         # Convolutional Layer Block 3
         x3 = self.activation(self.conv3(x2))
-        # Convolutional Layer Block 4
-        x4 = self.activation(self.conv4(x3))
 
         # Flatten4
-        x_cls = x4.view(-1, 64 * 64 * 15 * 15)
-        x_bbox = x4.view(-1, 64 * 64 * 15 * 15)
+        x_cls = x3.view(-1, 64 * 64 * 15 * 15)
+        x_bbox = x3.view(-1, 64 * 64 * 15 * 15)
 
         # Fully Connected Layers for Classification
         x_cls = self.dropout1(self.activation(self.fc_cls1(x_cls)))

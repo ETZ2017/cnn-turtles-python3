@@ -5,7 +5,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="General configuration for micromind.")
 
     parser.add_argument(
-        "--lr", type=float, default=0.001, help="Learning rate."
+        "--lr", type=float, default=0.01, help="Learning rate."
     )
     
     parser.add_argument(
@@ -33,7 +33,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--batch_size",
-        default=32,
+        default=128,
         type=int
     )
     parser.add_argument(

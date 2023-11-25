@@ -55,6 +55,7 @@ def START_seed():
 transform = transforms.Compose([
     transforms.Resize((120, 120)),  # Adjust the size as needed
     transforms.ToTensor(),
+    # transforms.Normalize()
 ])
 
 augmentation_transform = transforms.Compose([
@@ -64,6 +65,7 @@ augmentation_transform = transforms.Compose([
     transforms.RandomRotation((5, 85)),
     transforms.Resize((120, 120)),  # Adjust the size as needed
     transforms.ToTensor(),
+    # transforms.Normalize()
 ])
 
 multiple_transforms = [transform, augmentation_transform]
@@ -76,7 +78,7 @@ print("Test set length: ", len(test_dataset))
 
 ## split into train, val, test 
 print("Train set length: ", len(train_dataset))     
-val_size = int(0.3 * len(train_dataset))
+val_size = int(0.15 * len(train_dataset))
 print("Validation set length: ", val_size)
 train_size = len(train_dataset) - val_size
 print("Train set length after split for validation", train_size)
@@ -123,11 +125,10 @@ def calculate_class_distribution(targets):
     return class_counts
 
 def calculate_iou(pred_boxes, top, left, size = 25):
+
     # Extract coordinates and dimensions
     pred_x1, pred_y1 = pred_boxes.unbind(dim=2)
     target_x1, target_y1 = left, top
-
-    
 
     # Calculate intersection coordinates
     intersection_x1 = torch.maximum(pred_x1, target_x1)
@@ -187,7 +188,7 @@ def train_epoch(model, train_dataloader, optimizer):
     avg_cls_accuracy = total_cls_correct / total_samples
     avg_bbox_accuracy = total_iou / total_samples
     
-    log = '{} train loss: {:.4f} average classification accuracy: {:.4f} average bbox accuracy: {:.4f}\n'.format(epoch, running_loss/(batch_idx+1), 100.*avg_cls_accuracy, 100.*avg_bbox_accuracy)
+    log = '{} train loss: {:.4f} average classification accuracy: {:.4f} average bbox accuracy: {:.4f}\n'.format(epoch, running_loss/(batch_idx+1), 100.*avg_cls_accuracy, avg_bbox_accuracy)
     with open(path + "/log.txt", 'a') as file:
                 file.write(log)
 
@@ -238,8 +239,7 @@ def evaluate(model, dataloader):
     avg_cls_accuracy = total_cls_correct / total_samples
     avg_bbox_accuracy = total_iou / total_samples
 
-    log = '{} train loss: {:.4f} average classification accuracy: {:.4f} average bbox accuracy: {:.4f}\n'.format(epoch, running_loss/(batch_idx+1), 100.*avg_cls_accuracy, 100.*avg_bbox_accuracy)
-    print(log)
+    log = '{} train loss: {:.4f} average classification accuracy: {:.4f} average bbox accuracy: {:.4f}\n'.format(epoch, running_loss/(batch_idx+1), 100.*avg_cls_accuracy, avg_bbox_accuracy)
     with open(path + "/log.txt", 'a') as file:
                 file.write(log)
 
@@ -293,8 +293,7 @@ def test(model, test_dataloader,  best_model_path):
     avg_cls_accuracy = total_cls_correct / total_samples
     avg_bbox_accuracy = total_iou / total_samples
    
-    log = 'Test loss: {:.4f} Class Accuracy: {:.2f}% Bounding box accuracy'.format(test_loss/(batch_idx+1), 100.*avg_cls_accuracy, 100.*avg_bbox_accuracy)
-    print(log)
+    log = 'Test loss: {:.4f} Class Accuracy: {:.2f}% Bounding box accuracy {:.2f}'.format(test_loss/(batch_idx+1), 100.*avg_cls_accuracy, avg_bbox_accuracy)
     with open(path + "/log.txt", 'a') as file:
         file.write(log)  
 
@@ -319,7 +318,9 @@ if __name__ == "__main__":
     model = DilatedCNNObjectDetection()
 
     # criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing, weight=ins_class_weights)
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True)
+    # optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True)
+    # optimizer = optim.Adam(model.parameters(), lr=lr, momentum=0.9, weight_decay=l2_lambda, nesterov=True)
+    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=l2_lambda)
 
     pytorch_total_params = sum(p.numel() for p in  model.parameters())
     print('Number of parameters: {0}'.format(pytorch_total_params))

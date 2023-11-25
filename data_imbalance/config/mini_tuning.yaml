@@ -15,6 +15,8 @@ parameters:
     value: True
   enable_ins_weights:
     value: True
+  enable_root_weights:
+    value: False
   epochs:
     values: [15, 20, 25]
   batch_size:

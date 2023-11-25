@@ -266,7 +266,10 @@ def test(model, test_dataloader, criterion,  best_model_path):
     with open(path + "/log.txt", 'a') as file:
         file.write(log)  
 
-    return average_loss, accuracy, all_predictions, all_targets             
+    return average_loss, accuracy, all_predictions, all_targets     
+
+import torch
+from torchviz import make_dot        
 
 if __name__ == "__main__":
 
@@ -311,6 +314,11 @@ if __name__ == "__main__":
     start = time.time()
 
     for epoch in range(0, epochs):
+
+        graph = make_dot(model(), params=dict(model.named_parameters()))
+
+        # Save the graph as a PNG file
+        graph.render("cnn_graph")
 
         train_loss, train_accuracy = train_epoch(model, train_loader, criterion, optimizer)
         print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")

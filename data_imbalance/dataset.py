@@ -24,8 +24,8 @@ else:
 
 class TurtleDataset(Dataset):
 
-    def __init__(self, csv_file='turtle_image_metadata_r1_partition.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
-    # def __init__(self, csv_file='turtle_image_metadata_clean_s.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
+    def __init__(self, csv_file='turtle_image_metadata_r1_partition.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.2, train=True, random_state=42):
+    # def __init__(self, csv_file='turtle_image_metadata_clean_s.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.2, train=True, random_state=42):
 
         # self.df = pd.read_csv(f"./data_imbalance/{csv_file}")
         self.df = pd.read_csv(f"./{csv_file}")
@@ -75,4 +75,4 @@ class TurtleDataset(Dataset):
         if self.transform:
             image = self.transform[int(label)](image) if self.is_train else self.transform(image)   
 
-        return image, label
+        return image/255.0, label
