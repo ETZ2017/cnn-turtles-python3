@@ -1,0 +1,26 @@
+name: mini_tuning_ins
+entity: turtle_detection
+program: main.py
+command:
+method: bayes
+metric:
+  goal: maximize
+  name: eval/f1
+parameters:
+  enable_aug_rhf:
+    value: False
+  enable_aug_rvf:
+    value: False
+  enable_aug_rr:
+    value: True
+  enable_ins_weights:
+    value: True
+  enable_root_weights:
+    value: False
+  epochs:
+    values: [15, 20, 25]
+  batch_size:
+    values: [64, 128]  
+  lr:
+    min: 0.008
+    max: 0.035

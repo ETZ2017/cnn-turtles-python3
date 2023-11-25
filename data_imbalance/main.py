@@ -53,6 +53,12 @@ def START_seed():
     seed = 9
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
+    file.write(str(params))
+
+def START_seed():
+    seed = 9
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
@@ -322,7 +328,7 @@ def test(model, test_dataloader, criterion, best_model_path):
     with open(path + "/log.txt", 'a') as file:
         file.write(log)  
 
-    return average_loss, accuracy, all_predictions, all_targets             
+    return average_loss, accuracy, all_predictions, all_targets     
 
 # Focal loss, as indicated by Lin et al. in https://arxiv.org/pdf/1708.02002.pdf
 class FocalLoss(nn.Module):
@@ -356,12 +362,6 @@ if __name__ == "__main__":
             "batch_size": params.batch_size,
             "lr": params.lr,
             "opt": params.opt,
-            "enable_aug_rhf": params.enable_aug_rhf,
-            "enable_aug_rvf": params.enable_aug_rvf,
-            "enable_aug_rr": params.enable_aug_rr,
-            "enable_ins_weights": params.enable_ins_weights,
-            "enable_root_weights": params.enable_root_weights,
-            "enable_label_smoothing": params.enable_label_smoothing,
         },
         name="turtles"
     )
@@ -410,6 +410,11 @@ if __name__ == "__main__":
     
     for epoch in range(0, epochs):
 
+        graph = make_dot(model(), params=dict(model.named_parameters()))
+
+        # Save the graph as a PNG file
+        graph.render("cnn_graph")
+
         train_loss, train_accuracy = train_epoch(model, train_loader, criterion, optimizer)
         print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
 
@@ -432,8 +437,6 @@ if __name__ == "__main__":
         print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
         print(f"Validation Precision: {precision:.4f}, Validation Recall: {recall:.4f}")
         print(f"Validation F1: {f1:.4f}, Validation ROC: {roc_auc:.4f}")
-        print(f"all_targets: {all_targets}")
-        print(f"all_predictions: {all_predictions}")
         
         wandb.log({
             'train/acccuracy': train_accuracy,

@@ -17,6 +17,10 @@ parameters:
     value: True
   enable_label_smoothing:
     value: True
+  enable_label_smoothing:
+    value: True
+  enable_root_weights:
+    value: False
   epochs:
     values: [15, 20, 25]
   batch_size:
