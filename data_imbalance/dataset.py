@@ -27,8 +27,8 @@ class TurtleDataset(Dataset):
     def __init__(self, csv_file='turtle_image_metadata_r1_partition.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
     # def __init__(self, csv_file='turtle_image_metadata_clean_s.csv', transform=None, sampling_strategy=None, method=None, test_size: float = 0.3, train=True, random_state=42):
 
-        # self.df = pd.read_csv(f"./data_imbalance/{csv_file}")
-        self.df = pd.read_csv(f"./{csv_file}")
+        self.df = pd.read_csv(f"./data_imbalance/{csv_file}")
+        # self.df = pd.read_csv(f"./{csv_file}")
 
         self.is_train = train
 
@@ -65,14 +65,24 @@ class TurtleDataset(Dataset):
 
         img_folder = self.df.iloc[idx, 0]
         img_name = self.df.iloc[idx, 1]
-        img_path = f"../{img_folder}/{img_name}"
-        # img_path = f"{img_folder}/{img_name}"
+        # img_path = f"../{img_folder}/{img_name}"
+        img_path = f"{img_folder}/{img_name}"
+
+        top = self.df.iloc[idx, 4]
+        left = self.df.iloc[idx, 5]
 
         image = Image.open(img_path).convert("RGB")
 
+        image = image.crop((left, top, left + 100, top + 100))
+
         label = int(self.df.iloc[idx, 6] if self.df.iloc[idx, 6] != 'Certain Turtle' else '1')
+
+        if label == 1:
+
+            print('yolo')
 
         if self.transform:
             image = self.transform[int(label)](image) if self.is_train else self.transform(image)   
 
         return image, label
+    #return image, label

@@ -24,7 +24,11 @@
             "justMyCode": false,
             "env": {
                 "PYTHONPATH":"${workspaceFolder}/data_imbalance/"
-            }
+            },
+            "args":[
+                "--batch_size=1",
+                "--epochs=2"
+            ]
         },
     ]
 }

@@ -28,7 +28,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--epochs",
-        default=10,
+        default=5,
         type=int
     )
     parser.add_argument(
@@ -38,12 +38,12 @@ def parse_arguments():
     )
     parser.add_argument(
         "--label_smoothing",
-        default=0.2,
+        default=0.3,
         type=float
     )
     parser.add_argument(
         "--l2_lambda",
-        default=0.01,
+        default=0.005,
         type=float
     )
     parser.add_argument(
