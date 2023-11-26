@@ -31,6 +31,7 @@ from pathlib import Path
 params = parse_arguments()
 
 lr=params.lr
+is_test=params.is_test
 epochs=params.epochs
 batch_size = params.batch_size
 label_smoothing = params.label_smoothing
@@ -361,7 +362,6 @@ if __name__ == "__main__":
             "epochs": params.epochs,
             "batch_size": params.batch_size,
             "lr": params.lr,
-            "opt": params.opt,
         },
         name="turtles"
     )
@@ -408,49 +408,50 @@ if __name__ == "__main__":
     model.to(device)
     start = time.time()
     
-    for epoch in range(0, epochs):
+    if is_test:
 
-        graph = make_dot(model(), params=dict(model.named_parameters()))
+        for epoch in range(0, epochs):
 
-        # Save the graph as a PNG file
-        graph.render("cnn_graph")
+            train_loss, train_accuracy = train_epoch(model, train_loader, criterion, optimizer)
+            print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
 
-        train_loss, train_accuracy = train_epoch(model, train_loader, criterion, optimizer)
-        print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
+            val_loss, val_accuracy, all_predictions, all_targets  = evaluate(model, val_loader, criterion)
 
-        val_loss, val_accuracy, all_predictions, all_targets  = evaluate(model, val_loader, criterion)
+            # Calculate metrics using sklearn.metrics
 
-        # Calculate metrics using sklearn.metrics
+            precision = precision_score(all_targets, all_predictions)
+            recall = recall_score(all_targets, all_predictions)
+            f1 = f1_score(all_targets, all_predictions)
+            roc_auc = roc_auc_score(all_targets, all_predictions)
 
-        precision = precision_score(all_targets, all_predictions)
-        recall = recall_score(all_targets, all_predictions)
-        f1 = f1_score(all_targets, all_predictions)
-        roc_auc = roc_auc_score(all_targets, all_predictions)
+            if f1 > best_f1:
 
-        if f1 > best_f1:
+                print("Saving the best model...")
+                torch.save(model.state_dict(), path + '/best_model.pth')
 
-            print("Saving the best model...")
-            torch.save(model.state_dict(), path + '/best_model.pth')
+                best_f1 = f1
 
-            best_f1 = f1
+            print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+            print(f"Validation Precision: {precision:.4f}, Validation Recall: {recall:.4f}")
+            print(f"Validation F1: {f1:.4f}, Validation ROC: {roc_auc:.4f}")
+            
+            wandb.log({
+                'train/acccuracy': train_accuracy,
+                'train/loss': train_loss,
+                'eval/acccuracy': val_accuracy,
+                'eval/loss': val_loss,
+                'eval/precision': precision,
+                'eval/recall': recall,
+                'eval/f1': f1,
+                'eval/roc_auc': roc_auc,
+            })
 
-        print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
-        print(f"Validation Precision: {precision:.4f}, Validation Recall: {recall:.4f}")
-        print(f"Validation F1: {f1:.4f}, Validation ROC: {roc_auc:.4f}")
+        best_model_path = path + '/best_model.pth' 
+
+    else:
         
-        wandb.log({
-            'train/acccuracy': train_accuracy,
-            'train/loss': train_loss,
-            'eval/acccuracy': val_accuracy,
-            'eval/loss': val_loss,
-            'eval/precision': precision,
-            'eval/recall': recall,
-            'eval/f1': f1,
-            'eval/roc_auc': roc_auc,
-        })
-
-    best_model_path = path + '/best_model.pth' 
-    # best_model_path = 'best_so_far/best_model.pth' 
+        best_model_path = 'models/best_model.pth' 
+    
     test_loss, test_accuracy, test_all_predictions, test_all_targets = test(model, test_loader, criterion, best_model_path)
     
     test_precision = precision_score(test_all_targets, test_all_predictions)

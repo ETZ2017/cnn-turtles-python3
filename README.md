@@ -109,7 +109,9 @@ Running run.sh in bash will run the full turtle detection workflow (inside the b
 
 ### /SAM/SAM_Teast_1.ipynb
 
+## How to download the dataset
 
+Dataset is available at https://datadryad.org/stash/dataset/doi:10.5061/dryad.5h06vv2. You should download it and extract it the root folder.
 
 
 ## How to configure the environment
@@ -152,37 +154,17 @@ pip install -r requirements.txt
     When completed, just execute the same steps 2 and 3 from the <b>With Conda</b> subsection.
 </div>
 
-## Run the current best models
+## Run the current best model
 
 <div style="text-align: justify">
-    In the folder <b>best_models</b> you can find the different models we were able to train.
-    Currently, we support the following:
+    In the folder <b>best_model</b> you can find the model we were able to train.
 </div>
 
-#### GA
+#### Data Imbalance
 
 ```sh
 python main_ga.py -o
 ```
-
-#### PPO with Stable Baselines 3
-
-```sh
-python main_rl_ppo_wo_img.py -o
-```
-
-#### Images DQN with Stable Baselines 3
-
-```sh
-python main_rl_dqn.py -sb -o
-```
-
-#### Features DQN with Stable Baselines 3
-
-```sh
-python main_rl_dqn_wo_img.py -sb -o
-```
-
 
 ## Common issues
 

@@ -1,1 +1,0 @@
-Namespace(lr=0.001, opt='adam', experiment_name='exp', output_folder='results', debug=False, epochs=100, batch_size=128, label_smoothing=0.2, l2_lambda=0.01, enable_aug_rhf=True, enable_aug_rvf=True, enable_aug_rr=True, enable_ins_weights=False, enable_root_weights=False, enable_label_smoothing=False)
