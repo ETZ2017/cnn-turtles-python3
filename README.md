@@ -106,10 +106,11 @@ Running run.sh in bash will run the full turtle detection workflow (inside the b
 
 
 ```sh
+  cd small_object_detection
   # Run with default values
-  python small_object_detection/main.py
-  # Defining parameters (these are recomended) e.g. Population: 50, Generations: 10, MR: 0.5
-  python small_object_detection/main.py --epochs 50 --batch_size 128 --lr 0.234
+  python main.py
+  # Defining parameters
+  python main.py --epochs 50 --batch_size 128 --lr 0.234
 ```
 
 ### /SAM/SAM_Teast_1.ipynb
@@ -123,7 +124,37 @@ Dataset is available at https://datadryad.org/stash/dataset/doi:10.5061/dryad.5h
 
 ## How to configure the environment
 
-### With Conda (recommended)
+### With PIP (recommended)
+
+<div style="text-align: justify">
+    We provide a file <b>requirements.txt</b> to install all the dependencies
+    with a package manager like <b><a target="_blank" href="https://pip.pypa.io/en/stable/cli/pip_install/">pip</a></b>.
+</div>
+
+```sh
+# Create manually conda environment
+conda create -n ai_701 python=3.9
+
+# Install with pip
+pip install -r requirements.txt
+```
+
+<div style="text-align: justify">
+    2. When the environment completes its configuration, just access the environment
+    and launch one of the configurations mentioned in the previous section:
+</div>
+
+```sh
+cd data_imbalance
+
+# Activate environment
+conda activate ai_701
+
+# e.g. Run with epochs 5 and batch_size 128
+python main.py --enable_aug_rhf True --enable_aug_rvf True --enable_aug_rr True --epochs 5 --batch_size 128
+```
+
+### With Conda 
 
 <div style="text-align: justify">
     1. Start by creating a new Python environment using the provided
@@ -135,30 +166,7 @@ conda env create -f environment.yml
 ```
 
 <div style="text-align: justify">
-    2. When the environment completes its configuration, just access the environment
-    and launch one of the configurations mentioned in the previous section:
-</div>
-
-```sh
-# Activate environment
-conda activate ai_701
-# e.g. Run with epochs 5 and batch_size 128
-python data_imbalance/main.py --enable_aug_rhf True --enable_aug_rvf True --enable_aug_rr True --epochs 5 --batch_size 128
-```
-### With other environment managers
-
-<div style="text-align: justify">
-    We provide a file <b>requirements.txt</b> to install all the dependencies
-    with a package manager like <b><a target="_blank" href="https://pip.pypa.io/en/stable/cli/pip_install/">pip</a></b>.
-</div>
-
-```sh
-# Install with pip
-pip install -r requirements.txt
-```
-
-<div style="text-align: justify">
-    When completed, just execute the same steps 2 and 3 from the <b>With Conda</b> subsection.
+    When completed, just execute the same step 2 as from the <b>With other environment managers</b> subsection.
 </div>
 
 ## Run the current best model
