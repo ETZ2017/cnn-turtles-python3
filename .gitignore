@@ -161,5 +161,8 @@ cython_debug/
 
 *.zip
 wandb*
-*jpg
+duke_turtles/*
+duke_turtles_r1/*
 *results*
+
+sam*pth
