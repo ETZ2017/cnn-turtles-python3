@@ -84,6 +84,10 @@ Running run.sh in bash will run the full turtle detection workflow (inside the b
 
 ### data_imbalance/view_csv.ipynb
 
+<div style="text-align: justify">
+    This notebook provides description regarding the steps taken for data analysis. Analyzing imbalanced datasets is crucial in machine learning for several reasons. Imbalanced datasets, where the distribution of classes is uneven, can lead to biased models that favor the majority class and perform poorly on minority classes. It showcases steps taken to gain better understanding of data as well as generation of new annotation files.
+</div>
+
 ### small_object_detection/main.py
 
 <div style="text-align: justify">
@@ -109,6 +113,8 @@ Running run.sh in bash will run the full turtle detection workflow (inside the b
 ```
 
 ### /SAM/SAM_Teast_1.ipynb
+
+Segment Anything Model (SAM): a new AI model from Meta AI that can "cut out" any object, in any image, with a single click. SAM is a promptable segmentation system with zero-shot generalization to unfamiliar objects and images, without the need for additional training. This notebook is is built on the [official notebook](https://colab.research.google.com/github/facebookresearch/segment-anything/blob/main/notebooks/automatic_mask_generator_example.ipynb) prepared by Meta AI.
 
 ## How to download the dataset
 
@@ -199,5 +205,5 @@ Thanks to the creators of the open source code that was the seed of this project
 
 ## License
 
-Copyright © 2021 [Alvaro Cabrera, Yevheniia Kryklyvets].<br />
+Copyright © 2023 [Alvaro Cabrera, Yevheniia Kryklyvets].<br />
 This project is [Apache License 2.0](https://apache.org/licenses/LICENSE-2.0.txt) licensed.
