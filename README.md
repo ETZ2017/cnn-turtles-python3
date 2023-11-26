@@ -1,3 +1,28 @@
+  <h1>Turtle Conservation: Drones & AI in Action</h1>
+<p>
+    <img alt="Version" src="https://img.shields.io/badge/version-0.0.1-blue.svg?cacheSeconds=2592000" />
+    <a href="https://apache.org/licenses/LICENSE-2.0.txt" target="_blank">
+        <img alt="License: Apache License 2.0" src="https://img.shields.io/badge/License-Apache License 2.0-yellow.svg" />
+    </a>
+    <img alt="Python" src="https://img.shields.io/badge/python-v3.9-green" />
+    <img alt="Conda" src="https://img.shields.io/badge/conda%7Cconda--forge-v3.7.1-important" />
+</p>
+
+<div style="text-align: justify">
+
+> This project addresses the urgent challenge of conserving endangered turtle species by harnessing the capabilities of advanced drone technology and artificial intelligence. In response to the constraints of traditional conservation methods, our innovative approach integrates high-resolution drone imagery with a sophisticated AI model meticulously tuned for the accurate detection and monitoring of turtles in their natural habitats.
+> This breakthrough streamlines the monitoring process and minimizes human intrusion into sensitive ecosystems. The significance of our work lies in its potential to revolutionize turtle conservation efforts, providing a scalable, efficient, and less invasive method to safeguard these crucial species. This contribution aligns with global biodiversity preservation goals, significantly striding towards sustainable and impactful wildlife conservation. 
+
+</div>
+
+## Folder structure
+
+>The root folder contains different folders for each of the approaches we tried.
+
+The project utilizes parser approach that allows usage of multiple flags that define hyperparameters and methodologies that could be applied in each run.
+
+### base_model/
+
 # cnn_sea_turtle_detection
 
 [![DOI](https://zenodo.org/badge/158115622.svg)](https://zenodo.org/badge/latestdoi/158115622)
@@ -8,7 +33,7 @@
 
 ### Using this code:
 
-Running run.sh in bash will run the full turtle detection workflow.
+Running run.sh in bash will run the full turtle detection workflow (inside the base model folder).
 
 #### Notes:
 * Python 2.7 is required and nonstandard python packages necessary are: numpy, scipy, keras, tables, and hdf5storage
@@ -25,3 +50,170 @@ Running run.sh in bash will run the full turtle detection workflow.
   * Model definition file
 * DukeTurtle_test.mat
   * processed and tiled RGB image data that is fed into the model. Training / validation split is 85% train / 15% validation 
+
+### data_imbalance/main.py
+
+<div style="text-align: justify">
+    This part contains Python3 version of the code provided in the original paper that was also rewritten using Pytorch. Here it is possible to try multiple techniques that aim to tackle data-imbalance issue as well as modify hyperparameters.
+</div>
+
+| Parameter            | Default  | Description                                    |
+|:---------------------|:---------|:-----------------------------------------------|
+| `--lr` | `0.025`     | Learning rate          |
+| `--experiment_name` | `exp`     | Name of the experiment |
+| `--output_folder`  | `results`    | Output folder path                                  |
+| `--epochs`  | `10`    | Number of epochs                                 |
+| `--batch_size` | `64` | Batch size                |
+| `--label_smoothing`    | `0.2`   | Specifies the amount of smoothing when computing the loss, where 0.0 means no smoothing. The targets become a mixture of the original ground truth and a uniform distribution |
+| `--l2_lambda`  | `0.01`  | Value for L2-regularization computes the average of the squared differences between actual values and predicted values                                 |
+| `--enable_aug_rhf` | `False` | Enable Random Horizontal flip as a transpormation for input image                |
+| `--enable_aug_rvf` | `False` | Enable Random Vertical flip as a transpormation for input image                |
+| `--enable_aug_rr` | `False` | Enable Random Rotation flip as a transpormation for input image                |
+| `--enable_ins_weights` | `False` | Enable Inverse of Number of Samples as a weight equation for loss                 |
+| `--enable_root_weights` | `False` | Enable Inverse of Square Root of Number of Samples  as a weight equation for loss                          |
+| `--enable_label_smoothing` | `False` | Enable lable smoothing parameter usage in loss function                |
+
+
+```sh
+  # Run with default values
+  python data_imbalance/main.py
+  # Defining parameters (these are recomended) e.g. Population: 50, Generations: 10, MR: 0.5
+  python data_imbalance/main.py --enable_aug_rhf True --enable_aug_rvf True --enable_aug_rr True --epochs 5 --batch_size 128
+```
+
+### data_imbalance/view_csv.ipynb
+
+### small_object_detection/main.py
+
+<div style="text-align: justify">
+    This part contains Python3 version of the code provided in the original paper that was also rewritten using Pytorch. Here it is possible to try multiple techniques that aim to tackle data-imbalance issue as well as modify hyperparameters.
+</div>
+
+| Parameter            | Default  | Description                                    |
+|:---------------------|:---------|:-----------------------------------------------|
+| `--lr` | `0.025`     | Learning rate          |
+| `--experiment_name` | `exp`     | Name of the experiment |
+| `--output_folder`  | `results`    | Output folder path                                  |
+| `--epochs`  | `10`    | Number of epochs                                 |
+| `--batch_size` | `64` | Batch size                |
+| `--label_smoothing`    | `0.2`   | Specifies the amount of smoothing when computing the loss, where 0.0 means no smoothing. The targets become a mixture of the original ground truth and a uniform distribution |
+| `--l2_lambda`  | `0.01`  | Value for L2-regularization computes the average of the squared differences between actual values and predicted values                                 |
+
+
+```sh
+  # Run with default values
+  python small_object_detection/main.py
+  # Defining parameters (these are recomended) e.g. Population: 50, Generations: 10, MR: 0.5
+  python small_object_detection/main.py --epochs 50 --batch_size 128 --lr 0.234
+```
+
+### /SAM/SAM_Teast_1.ipynb
+
+
+
+
+## How to configure the environment
+
+### With Conda (recommended)
+
+<div style="text-align: justify">
+    1. Start by creating a new Python environment using the provided
+    configuration file <b>environment.yml</b>:
+</div>
+
+```sh
+conda env create -f environment.yml
+```
+
+<div style="text-align: justify">
+    2. When the environment completes its configuration, just access the environment
+    and launch one of the configurations mentioned in the previous section:
+</div>
+
+```sh
+# Activate environment
+conda activate ai_701
+# e.g. Run a GA with Mutation Rate 0.9
+python data_imbalance/main.py --enable_aug_rhf True --enable_aug_rvf True --enable_aug_rr True --epochs 5 --batch_size 128
+```
+### With other environment managers
+
+<div style="text-align: justify">
+    We provide a file <b>requirements.txt</b> to install all the dependencies
+    with a package manager like <b><a target="_blank" href="https://pip.pypa.io/en/stable/cli/pip_install/">pip</a></b>.
+</div>
+
+```sh
+# Install with pip
+pip install -r requirements.txt
+```
+
+<div style="text-align: justify">
+    When completed, just execute the same steps 2 and 3 from the <b>With Conda</b> subsection.
+</div>
+
+## Run the current best models
+
+<div style="text-align: justify">
+    In the folder <b>best_models</b> you can find the different models we were able to train.
+    Currently, we support the following:
+</div>
+
+#### GA
+
+```sh
+python main_ga.py -o
+```
+
+#### PPO with Stable Baselines 3
+
+```sh
+python main_rl_ppo_wo_img.py -o
+```
+
+#### Images DQN with Stable Baselines 3
+
+```sh
+python main_rl_dqn.py -sb -o
+```
+
+#### Features DQN with Stable Baselines 3
+
+```sh
+python main_rl_dqn_wo_img.py -sb -o
+```
+
+
+## Common issues
+
+#### When running I've been asked for a Wandb (W&B) account
+
+<div style="text-align: justify">
+    We use <a target="_blank" href="https://wandb.ai/">wandb</a> to plot our results, you can create an account to
+    visualize the progress of an execution, or just chose the option 3, it
+    will ignore any logging.
+</div>
+
+```sh
+wandb: (1) Create a W&B account
+wandb: (2) Use an existing W&B account
+wandb: (3) Don't visualize my results
+wandb: Enter your choice: 
+```
+
+## Authors
+
+|              |                       **Alvaro Cabrera**                        |                       **Yevheniia Kryklyvets**                       |
+|--------------|:----------------------------------------------------------------------:|:------------------------------------------------------------------:|
+| **Github**   |              [@alvaro-cabrera](https://github.com/alvaro-cabrera)              |          [@ETZ2017](https://github.com/ETZ2017)                 |
+
+## Acknowledgements
+
+Thanks to the creators of the open source code that was the seed of this project.
+
+ - [patrickcgray](https://github.com/patrickcgray/cnn_sea_turtle_detection)
+
+## License
+
+Copyright © 2021 [Alvaro Cabrera, Yevheniia Kryklyvets].<br />
+This project is [Apache License 2.0](https://apache.org/licenses/LICENSE-2.0.txt) licensed.
