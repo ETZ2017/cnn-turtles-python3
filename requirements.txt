@@ -93,7 +93,6 @@ scikit-learn
 scipy
 sentry-sdk
 setproctitle
-sklearn
 smmap
 supervision
 sympy
