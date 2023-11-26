@@ -75,10 +75,11 @@ Running run.sh in bash will run the full turtle detection workflow (inside the b
 
 
 ```sh
+  cd data_imbalance
   # Run with default values
-  python data_imbalance/main.py
-  # Defining parameters (these are recomended) e.g. Population: 50, Generations: 10, MR: 0.5
-  python data_imbalance/main.py --enable_aug_rhf True --enable_aug_rvf True --enable_aug_rr True --epochs 5 --batch_size 128
+  python main.py
+  # Defining parameters (these are recomended)
+  python main.py --enable_aug_rhf True --enable_aug_rvf True --enable_aug_rr True --epochs 5 --batch_size 128
 ```
 
 ### data_imbalance/view_csv.ipynb
@@ -135,7 +136,7 @@ conda env create -f environment.yml
 ```sh
 # Activate environment
 conda activate ai_701
-# e.g. Run a GA with Mutation Rate 0.9
+# e.g. Run with epochs 5 and batch_size 128
 python data_imbalance/main.py --enable_aug_rhf True --enable_aug_rvf True --enable_aug_rr True --epochs 5 --batch_size 128
 ```
 ### With other environment managers
@@ -163,7 +164,8 @@ pip install -r requirements.txt
 #### Data Imbalance
 
 ```sh
-python main_ga.py -o
+cd data_imbalance
+python main.py --is_test True
 ```
 
 ## Common issues
